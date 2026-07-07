@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎂 عيد ميلاد حنين</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0a0a1a;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* الخلفية المتحركة */
+        #bgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            border-radius: 40px;
+            padding: 30px 25px;
+            box-shadow: 0 20px 60px rgba(255, 105, 180, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            text-align: center;
+            transition: 0.4s;
+        }
+
+        /* شاشة الباسورد */
+        #loginScreen {
+            display: block;
+        }
+
+        #loginScreen h1 {
+            color: #ffe6f0;
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px #ff69b4;
+        }
+
+        #loginScreen input {
+            padding: 14px 20px;
+            border-radius: 50px;
+            border: none;
+            outline: none;
+            width: 80%;
+            font-size: 1.1rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            backdrop-filter: blur(4px);
+            border: 1px solid #ff69b480;
+        }
+
+        #loginScreen input::placeholder {
+            color: #ddd;
+        }
+
+        #loginScreen button {
+            margin-top: 18px;
+            padding: 12px 40px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #ff69b4, #ff1493);
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 0 30px #ff149380;
+        }
+
+        #loginScreen button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 50px #ff1493;
+        }
+
+        #loginError {
+            color: #ff6b6b;
+            margin-top: 12px;
+            font-weight: bold;
+            display: none;
+        }
+
+        /* المحتوى الرئيسي */
+        #mainContent {
+            display: none;
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        #mainContent h2 {
+            font-size: 2rem;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        #typewriter {
+            font-size: 1.5rem;
+            color: #ffe6f0;
+            min-height: 120px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            border-right: 3px solid #ff69b4;
+            margin: 20px 0;
+            text-align: right;
+            line-height: 2;
+            white-space: pre-wrap;
+        }
+
+        #counter {
+            font-size: 1.6rem;
+            color: #ffd700;
+            background: rgba(255, 215, 0, 0.15);
+            padding: 12px;
+            border-radius: 60px;
+            backdrop-filter: blur(4px);
+            border: 1px solid #ffd70060;
+            margin: 15px 0;
+        }
+
+        #counter span {
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* لوحة التحكم */
+        #controlPanel {
+            margin-top: 30px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 30px;
+            padding: 20px;
+            border: 1px solid #ff69b480;
+            display: none;
+            text-align: right;
+        }
+
+        #controlPanel input, #controlPanel textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 16px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1rem;
+            resize: vertical;
+        }
+
+        #controlPanel textarea {
+            min-height: 80px;
+        }
+
+        #controlPanel label {
+            color: #ffb6c1;
+            font-weight: bold;
+            display: block;
+            margin-top: 12px;
+        }
+
+        .ctrl-btn {
+            background: linear-gradient(135deg, #00b894, #00a381);
+            color: #fff;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px 0;
+            transition: 0.3s;
+        }
+
+        .ctrl-btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 20px #00b894;
+        }
+
+        .ctrl-btn.danger {
+            background: linear-gradient(135deg, #e17055, #d63031);
+        }
+
+        #togglePanelBtn {
+            background: #6c5ce7;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 50px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+
+        #signature {
+            margin-top: 30px;
+            color: #aaa;
+            font-size: 0.9rem;
+            border-top: 1px solid #ffffff20;
+            padding-top: 15px;
+            letter-spacing: 1px;
+        }
+
+        #signature span {
+            color: #ff69b4;
+            font-weight: bold;
+        }
+
+        /* صور الميلاد */
+        .birthday-images {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin: 15px 0;
+        }
+
+        .birthday-images img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 2px solid #ff69b4;
+            object-fit: cover;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .birthday-images img:hover {
+            transform: scale(1.2) rotate(5deg);
+        }
+
+        /* تنسيق الأيموجي */
+        .emoji-big {
+            font-size: 3rem;
+            filter: drop-shadow(0 0 20px #ff69b4);
+        }
+
+        /* responsive */
+        @media (max-width: 600px) {
+            #typewriter { font-size: 1.1rem; }
+            #loginScreen h1 { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- خلفية متحركة -->
+    <canvas id="bgCanvas"></canvas>
+
+    <div class="container">
+
+        <!-- شاشة الدخول -->
+        <div id="loginScreen">
+            <h1>🔐 أدخلي تاريخ ميلادك</h1>
+            <input type="password" id="passInput" placeholder="مثال: 17/7/2008" />
+            <br>
+            <button onclick="checkPassword()">🎂 افتحي المفاجأة</button>
+            <div id="loginError">❌ الباسورد غلط يا حنين !</div>
+        </div>
+
+        <!-- المحتوى الرئيسي -->
+        <div id="mainContent">
+
+            <h2>🎉 كل سنة و انتِ معانا يا حنين 🎉</h2>
+
+            <div class="birthday-images">
+                <img src="https://img.icons8.com/fluency/96/000000/cake.png" alt="كيكة">
+                <img src="https://img.icons8.com/fluency/96/000000/balloon.png" alt="بالون">
+                <img src="https://img.icons8.com/fluency/96/000000/gift.png" alt="هدية">
+                <img src="https://img.icons8.com/fluency/96/000000/party.png" alt="حفلة">
+            </div>
+
+            <div id="typewriter"></div>
+
+            <div id="counter">
+                🎂 عيد ميلادك بعد <span id="daysLeft">--</span> يوم 🎂
+            </div>
+
+            <div style="margin: 10px 0; font-size: 2.5rem; letter-spacing: 8px;">
+                🥳🎈🎁🎀✨💖
+            </div>
+
+            <!-- زر لوحة التحكم -->
+            <button id="togglePanelBtn" onclick="togglePanel()">🛠️ لوحة التحكم</button>
+
+            <!-- لوحة التحكم -->
+            <div id="controlPanel">
+                <h3 style="color:#ffb6c1;">⚙️ تحكم في الموقع</h3>
+
+                <label>📝 تعديل النص (الذي يكتب تلقائيًا)</label>
+                <textarea id="editText">كل سنة يا اجمل حنو عرفتها اختي وامي وصحبتي الي بحبها كل سنة وانتي معانا وبتكبري قدامي يا وزتي عارف ان الهديه مش قد كد بس يلا اهو اي حاجه وكل سنة وانتي معانا يا اجمل حنين في الكون</textarea>
+                <button class="ctrl-btn" onclick="updateText()">✅ تأكيد تغيير النص</button>
+
+                <label>🖼️ رابط صورة الخلفية (اختياري)</label>
+                <input type="text" id="bgImageUrl" placeholder="ضع رابط صورة هنا" />
+                <button class="ctrl-btn" onclick="updateBgImage()">✅ تأكيد تغيير الخلفية</button>
+
+                <label>🎵 رفع أغنية (MP3)</label>
+                <input type="file" id="songFile" accept="audio/*" />
+                <button class="ctrl-btn" onclick="uploadSong()">✅ رفع الأغنية</button>
+
+                <label>🔑 تغيير الباسورد (حالي: 17/7/2008)</label>
+                <input type="text" id="newPassword" placeholder="باسورد جديد" />
+                <button class="ctrl-btn" onclick="changePassword()">✅ تغيير الباسورد</button>
+
+                <hr style="border-color:#ff69b460; margin:15px 0;">
+
+                <button class="ctrl-btn danger" onclick="resetAll()">🔄 إعادة ضبط كل شيء</button>
+            </div>
+
+            <div id="signature">
+                ✨ مصنوع من <span>❤️ مرعب</span> مقدم لي <span>حنين</span> ✨
+            </div>
+
+            <audio id="bgMusic" loop></audio>
+        </div>
+    </div>
+
+    <script>
+        // ----------------------------------------
+        // 1. خلفية متحركة (نجوم + بالونات + ألعاب نارية)
+        // ----------------------------------------
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+        let W, H;
+
+        function resizeCanvas() {
+            W = canvas.width = window.innerWidth;
+            H = canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // نجوم
+        const stars = [];
+        for (let i = 0; i < 120; i++) {
+            stars.push({
+                x: Math.random() * W,
+                y: Math.random() * H,
+                r: Math.random() * 2 + 0.5,
+                d: Math.random() * 0.5 + 0.3,
+                speed: Math.random() * 0.02 + 0.005
+            });
+        }
+
+        // بالونات
+        const balloons = [];
+        for (let i = 0; i < 8; i++) {
+            balloons.push({
+                x: Math.random() * W,
+                y: Math.random() * H,
+                r: 20 + Math.random() * 30,
+                speed: 0.3 + Math.random() * 0.6,
+                color: `hsl(${Math.random()*360}, 80%, 60%)`,
+                phase: Math.random() * 6.28
+            });
+        }
+
+        // ألعاب نارية (جزيئات)
+        let particles = [];
+
+        function createFirework() {
+            const cx = Math.random() * W * 0.6 + W * 0.2;
+            const cy = Math.random() * H * 0.4 + H * 0.1;
+            const count = 40 + Math.floor(Math.random() * 40);
+            const hue = Math.random() * 360;
+            for (let i = 0; i < count; i++) {
+                const angle = Math.random() * 6.28;
+                const speed = 2 + Math.random() * 5;
+                particles.push({
+                    x: cx,
+                    y: cy,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    life: 1,
+                    decay: 0.008 + Math.random() * 0.015,
+                    color: `hsl(${hue + Math.random()*40}, 90%, 60%)`,
+                    r: 3 + Math.random() * 4
+                });
+            }
+        }
+
+        function drawBg() {
+            ctx.clearRect(0, 0, W, H);
+
+            // تدرج خلفية
+            const grad = ctx.createRadialGradient(W/2, H/2, 100, W/2, H/2, W*0.8);
+            grad.addColorStop(0, '#1a0a2e');
+            grad.addColorStop(0.6, '#0d0d2b');
+            grad.addColorStop(1, '#050510');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, W, H);
+
+            // نجوم
+            stars.forEach(s => {
+                s.y += s.speed;
+                if (s.y > H) { s.y = -5; s.x = Math.random() * W; }
+                const twinkle = 0.6 + 0.4 * Math.sin(Date.now() * s.d);
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r, 0, 6.28);
+                ctx.fillStyle = `rgba(255,255,255,${twinkle})`;
+                ctx.fill();
+            });
+
+            // بالونات
+            balloons.forEach(b => {
+                b.y -= b.speed * 0.3;
+                b.x += Math.sin(Date.now() * 0.001 + b.phase) * 0.4;
+                if (b.y < -60) { b.y = H + 50; b.x = Math.random() * W; }
+                ctx.beginPath();
+                ctx.ellipse(b.x, b.y, b.r, b.r * 1.2, 0, 0, 6.28);
+                ctx.fillStyle = b.color;
+                ctx.shadowColor = b.color;
+                ctx.shadowBlur = 30;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                // خيط
+                ctx.beginPath();
+                ctx.moveTo(b.x, b.y + b.r * 1.1);
+                ctx.lineTo(b.x + 6, b.y + b.r * 1.8);
+                ctx.strokeStyle = '#ffffff60';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            });
+
+            // ألعاب نارية
+            if (Math.random() < 0.005) createFirework();
+            particles = particles.filter(p => p.life > 0);
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.04;
+                p.life -= p.decay;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r * p.life, 0, 6.28);
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.life;
+                ctx.shadowColor = p.color;
+                ctx.shadowBlur = 20;
+                ctx.fill();
+                ctx.globalAlpha = 1;
+                ctx.shadowBlur = 0;
+            });
+
+            requestAnimationFrame(drawBg);
+        }
+        drawBg();
+
+        // ----------------------------------------
+        // 2. المتغيرات الأساسية
+        // ----------------------------------------
+        let correctPassword = '17/7/2008';
+        let mainText = `كل سنة يا اجمل حنو عرفتها اختي وامي وصحبتي الي بحبها كل سنة وانتي معانا وبتكبري قدامي يا وزتي عارف ان الهديه مش قد كد بس يلا اهو اي حاجه وكل سنة وانتي معانا يا اجمل حنين في الكون`;
+        let currentText = '';
+        let textIndex = 0;
+        let typingInterval = null;
+
+        const loginScreen = document.getElementById('loginScreen');
+        const mainContent = document.getElementById('mainContent');
+        const passInput = document.getElementById('passInput');
+        const loginError = document.getElementById('loginError');
+        const typewriterEl = document.getElementById('typewriter');
+        const daysSpan = document.getElementById('daysLeft');
+        const bgMusic = document.getElementById('bgMusic');
+
+        // ----------------------------------------
+        // 3. التحقق من الباسورد
+        // ----------------------------------------
+        function checkPassword() {
+            const entered = passInput.value.trim();
+            if (entered === correctPassword) {
+                loginScreen.style.display = 'none';
+                mainContent.style.display = 'block';
+                loginError.style.display = 'none';
+                startTyping();
+                updateCounter();
+                // تشغيل الأغنية إذا وجدت
+                if (bgMusic.src && bgMusic.src !== '') {
+                    bgMusic.play().catch(() => {});
+                }
+            } else {
+                loginError.style.display = 'block';
+                passInput.value = '';
+                passInput.focus();
+            }
+        }
+
+        passInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') checkPassword();
+        });
+
+        // ----------------------------------------
+        // 4. تأثير الكتابة التلقائية
+        // ----------------------------------------
+        function startTyping() {
+            if (typingInterval) clearInterval(typingInterval);
+            currentText = '';
+            textIndex = 0;
+            typewriterEl.textContent = '';
+            typingInterval = setInterval(() => {
+                if (textIndex < mainText.length) {
+                    currentText += mainText[textIndex];
+                    typewriterEl.textContent = currentText;
+                    textIndex++;
+                } else {
+                    clearInterval(typingInterval);
+                }
+            }, 50);
+        }
+
+        // ----------------------------------------
+        // 5. عداد الأيام
+        // ----------------------------------------
+        function updateCounter() {
+            const today = new Date();
+            const birth = new Date(today.getFullYear(), 6, 17); // يوليو = 6
+            if (today > birth) birth.setFullYear(birth.getFullYear() + 1);
+            const diff = Math.ceil((birth - today) / (1000 * 60 * 60 * 24));
+            daysSpan.textContent = diff > 0 ? diff : 0;
+        }
+
+        // ----------------------------------------
+        // 6. لوحة التحكم
+        // ----------------------------------------
+        function togglePanel() {
+            const panel = document.getElementById('controlPanel');
+            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function updateText() {
+            const newText = document.getElementById('editText').value;
+            if (newText.trim() !== '') {
+                mainText = newText;
+                startTyping();
+                alert('✅ تم تغيير النص بنجاح!');
+            } else {
+                alert('❌ النص فارغ!');
+            }
+        }
+
+        function updateBgImage() {
+            const url = document.getElementById('bgImageUrl').value.trim();
+            if (url) {
+                document.body.style.backgroundImage = `url(${url})`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                alert('✅ تم تغيير صورة الخلفية!');
+            } else {
+                alert('❌ الرابط فارغ!');
+            }
+        }
+
+        function uploadSong() {
+            const fileInput = document.getElementById('songFile');
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    bgMusic.src = e.target.result;
+                    bgMusic.play().catch(() => {});
+                    alert('✅ تم رفع الأغنية وتشغيلها!');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('❌ اختر ملف MP3 أولاً!');
+            }
+        }
+
+        function changePassword() {
+            const newPass = document.getElementById('newPassword').value.trim();
+            if (newPass !== '') {
+                correctPassword = newPass;
+                alert(`✅ تم تغيير الباسورد إلى: ${newPass}`);
+                document.getElementById('newPassword').value = '';
+            } else {
+                alert('❌ اكتب باسورد جديد!');
+            }
+        }
+
+        function resetAll() {
+            if (confirm('هل أنت متأكد من إعادة الضبط؟')) {
+                correctPassword = '1772008';
+                mainText = `كل سنة يا اجمل حنو عرفتها اختي وامي وصحبتي الي بحبها كل سنة وانتي معانا وبتكبري قدامي يا وزتي عارف ان الهديه مش قد كد بس يلا اهو اي حاجه وكل سنة وانتي معانا يا اجمل حنين في الكون`;
+                document.getElementById('editText').value = mainText;
+                document.getElementById('bgImageUrl').value = '';
+                document.body.style.backgroundImage = '';
+                document.body.style.backgroundSize = '';
+                document.body.style.backgroundPosition = '';
+                bgMusic.src = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('songFile').value = '';
+                startTyping();
+                alert('✅ تم إعادة الضبط بنجاح!');
+            }
+        }
+
+        // ----------------------------------------
+        // 7. التحكم في لوحة التحكم بحساب
+        // ----------------------------------------
+        // نستخدم نفس الباسورد الخاص بالجيميل للدخول للوحة
+        // لكن سنطلب كلمة مرور منفصلة للوحة (حسب طلبك)
+        // سأجعلها: morb555
+        let panelPassword = 'morb555';
+        let panelLoggedIn = false;
+
+        // نعدل دالة togglePanel لتطلب كلمة مرور
+        const originalToggle = togglePanel;
+        togglePanel = function() {
+            const panel = document.getElementById('controlPanel');
+            if (panel.style.display === 'block') {
+                panel.style.display = 'none';
+                return;
+            }
+            if (!panelLoggedIn) {
+                const pass = prompt('🔑 أدخل كلمة مرور لوحة التحكم:');
+                if (pass === panelPassword) {
+                    panelLoggedIn = true;
+                    panel.style.display = 'block';
+                } else {
+                    alert('❌ كلمة مرور خاطئة!');
+                }
+            } else {
+                panel.style.display = 'block';
+            }
+        };
+
+        // ربط الزر بالدالة الجديدة
+        document.getElementById('togglePanelBtn').onclick = togglePanel;
+
+        // ----------------------------------------
+        // 8. تفعيل الإدخال التلقائي للباسورد (تجربة)
+        // ----------------------------------------
+        // نضع قيمة افتراضية للاختبار
+        passInput.placeholder = 'أدخل 17/7/2008';
+
+        // تحديث العداد كل دقيقة
+        setInterval(updateCounter, 60000);
+
+        // تحميل أي أغنية محفوظة (اختياري)
+        console.log('🎂 موقع حنين جاهز يا مرعب!');
+    </script>
+
+</body>
+  </html>
